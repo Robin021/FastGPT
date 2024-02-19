@@ -93,6 +93,7 @@
     "Finish": "Finish",
     "Input": "Input",
     "Intro": "Intro",
+    "Invalid Json": "Invalid Json",
     "Last Step": "Last",
     "Last use time": "Last use time",
     "Load Failed": "Load Failed",
@@ -199,6 +200,9 @@
     "input": {
       "Repeat Value": "Repeat Value"
     },
+    "jsonEditor": {
+      "Parse error": "Json parse error, please check it"
+    },
     "link": {
       "UnValid": "UnValid Link"
     },
@@ -226,7 +230,6 @@
   },
   "core": {
     "Chat": "Chat",
-    "Chat API is error or undefined": "The session interface reported an error or returned null",
     "Chat test": "Chat test",
     "Max Token": "MaxTokens",
     "Start chat": "Start chat",
@@ -274,13 +277,12 @@
       "deterministic": "Deterministic",
       "edit": {
         "Confirm Save App Tip": "The application may be in advanced orchestration mode, and the advanced orchestration configuration will be overwritten after saving, please confirm!",
-        "Open cfr": "Open Cfr",
         "Out Ad Edit": "You are about to exit the Advanced orchestration page, please confirm",
         "Prompt Editor": "Prompt Editor",
+        "Query extension background prompt": "Chat background description",
+        "Query extension background tip": "Describing the scope of the current conversation makes it easier for AI to complete first or vague questions, thereby enhancing the knowledge base's ability to continue conversations.\nIf the value is empty, the question completion function is not used for [first question].",
         "Save and out": "Save out",
-        "UnSave": "UnSave",
-        "cfr background prompt": "Chat background description",
-        "cfr background tip": "Describing the scope of the current conversation makes it easier for AI to complete first or vague questions, thereby enhancing the knowledge base's ability to continue conversations.\nIf the value is empty, the problem completion function is not used for the \"first problem\".\nIf the value is none, the problem completion function is not used."
+        "UnSave": "UnSave"
       },
       "error": {
         "App name can not be empty": "App name can not be empty",
@@ -362,7 +364,7 @@
     "chat": {
       "Admin Mark Content": "Corrected response",
       "Audio Speech Error": "Audio Speech Error",
-      "Chat API is error or undefined": "",
+      "Chat API is error or undefined": "The session interface reported an error or returned null",
       "Confirm to clear history": "Confirm to clear history?",
       "Confirm to clear share chat history": " Are you sure to delete all chats?",
       "Converting to text": "Converting to text...",
@@ -432,6 +434,7 @@
       },
       "response": {
         "Complete Response": "Complete Response",
+        "Extension model": "Extension model",
         "Plugin Resonse Detail": "Plugin Detail",
         "Read complete response": "Read Detail",
         "Read complete response tips": "Click to see the detailed process",
@@ -649,14 +652,19 @@
       },
       "link": "Link",
       "search": {
-        "Dataset Search Params": "Dataset Search Params",
+        "Basic params": "Basic settings",
+        "Dataset Search Params": "Dataset search configuration",
         "Embedding score": "Embedding score",
         "Empty result response": "Empty Response",
         "Empty result response Tips": "If you fill in the content, if no suitable content is found, you will directly reply to the content.",
+        "Filter": "Search filter",
+        "Limit": "Search limit",
         "Max Tokens": "Max Tokens",
         "Max Tokens Tips": "The maximum number of Tokens in a single search, about 1 word in Chinese =1.7Tokens, about 1 word in English =1 tokens",
         "Min Similarity": "Min Similarity",
         "Min Similarity Tips": "The similarity of different index models is different, please use the search test to select the appropriate value",
+        "Nonsupport": "Nonsupport",
+        "Not similarity": "",
         "Params Setting": "Params Setting",
         "Quote index": "Quote index",
         "Rank": "Rank",
@@ -670,6 +678,8 @@
         "Source id": "Source ID",
         "Source name": "Source",
         "Top K": "Top K",
+        "Using cfr": "Open query extension",
+        "Using query extension": "",
         "mode": {
           "embedding": "Vector recall",
           "embedding desc": "Use vectors for text correlation queries",
@@ -693,6 +703,9 @@
           "rrf desc": "Multiple search results are combined by inverting calculation."
         },
         "search mode": "Search Mode"
+      },
+      "settings": {
+        "Search basic params": ""
       },
       "status": {
         "active": "Ready",
@@ -739,6 +752,7 @@
     },
     "module": {
       "Add question type": "Add type",
+      "Can not connect self": "Cannot connect itself",
       "Data Type": "Data Type",
       "Dataset quote": {
         "Add quote": "Add quote",
@@ -750,8 +764,14 @@
       "Field Name": "Name",
       "Field Type": "Type",
       "Field key": "Key",
+      "Http request props": "Request props",
+      "Http request settings": "Request settings",
       "Input Type": "Input Type",
       "Plugin output must connect": "Custom outputs must all be connected",
+      "QueryExtension": {
+        "placeholder": "Questions about python introduction and usage, etc. The current conversation is related to the game GTA5.",
+        "tip": "Describes the scope of the current conversation, making it easier for the AI to complete first or vague questions, thereby enhancing the knowledge base's ability to continue conversations.If \n is empty, the question completion function is not used in the first conversation. "
+      },
       "Unlink tip": "[{{name}}] An unfilled or unconnected parameter exists",
       "Variable": "Variables",
       "Variable Setting": "Variable Setting",
@@ -765,6 +785,22 @@
         "Field Description Placeholder": "Name/age /sql statement......",
         "Field Setting Title": "Extract field configuration"
       },
+      "http": {
+        "Add props": "Add props",
+        "AppId": "appId",
+        "ChatId": "chatId",
+        "Current time": "Current time",
+        "Histories": "histories",
+        "Key already exists": "Key already exists",
+        "Key cannot be empty": "Name cannot be empty",
+        "Props name": "Name",
+        "Props tip": "You can set parameters related to Http requests\nGlobal changes or external parameter inputs can be invoked by {{key}}",
+        "Props value": "Value",
+        "ResponseChatItemId": "Ai response id",
+        "Url and params have been split": "Path parameters are automatically added to Params",
+        "Variables": "Global variables",
+        "params": ""
+      },
       "input": {
         "Add Input": "Add Input",
         "Input Number": "Input: {{length}}",
@@ -776,8 +812,6 @@
           "Response content": "You can use \\n to achieve continuous line wrapping.\nReplies can be achieved by external module input, which overwrites the content currently filled in.\nIf passed non-string type data will be automatically converted to a string",
           "TFSwitch textarea": "Allows you to define a number of strings to achieve false matching, one per line, and supports regular expressions.",
           "Trigger": "Most of the time, you don't need to concatenate this property. You can connect this property when you need to delay execution, or precisely control the timing of execution.",
-          "anyInput": "Can pass anything ",
-          "cfr background": "Describes the scope of the current conversation, making it easier for the AI to complete first or vague questions, thereby enhancing the knowledge base's ability to continue conversations. If\nis empty, the question completion function is not used in the first conversation. ",
           "dynamic input": "Receives parameters dynamically added by the user and will be tiled in at run time ",
           "textEditor textarea": "The passed variable can be referenced by {{key}}. Variables support only strings or numbers."
         },
@@ -791,18 +825,17 @@
           "Quote": "Quote",
           "Response content": "Response content",
           "Select dataset": "Select dataset",
+          "TFSwitch input tip": "",
           "TFSwitch textarea": "Custom False matching rule ",
           "aiModel": "AI model ",
-          "anyInput": "Any input ",
-          "cfr background": "Background",
+          "anyInput": "Any input",
           "chat history": "chat history",
           "switch": "Trigger",
           "textEditor textarea": "Text edit",
           "user question": "User question"
         },
         "placeholder": {
-          "Classify background": "For example:\n1.AIGC (Artificial Intelligence Generates content) refers to the automatic or semi-automatic generation of digital content, such as text, images, music, videos, and so on, using artificial intelligence technologies. AIGC technologies include, but are not limited to, natural language processing, computer vision, machine learning, and deep learning. These technologies can create new content or modify existing content to meet specific creative, educational, entertainment or information needs.",
-          "cfr background": "Questions about the introduction and use of python. \nThe current dialogue is related to the game GTA5."
+          "Classify background": "For example:\n1.AIGC (Artificial Intelligence Generates content) refers to the automatic or semi-automatic generation of digital content, such as text, images, music, videos, and so on, using artificial intelligence technologies. AIGC technologies include, but are not limited to, natural language processing, computer vision, machine learning, and deep learning. These technologies can create new content or modify existing content to meet specific creative, educational, entertainment or information needs."
         }
       },
       "inputType": {
@@ -842,7 +875,7 @@
         "Ai chat": "LLM Chat",
         "Ai chat intro": "Request LLM chat",
         "Assigned reply": "Assigned reply",
-        "Assigned reply intro": "The module can respond directly to a specified piece of content. Often used to guide and prompt",
+        "Assigned reply intro": "The module can respond directly to a specified piece of content. Often used to guide and prompt. When non-string content is passed in, it is converted to a string for output.",
         "Chat entrance": "Chat entrance",
         "Chat entrance intro": "When the user sends a content, the flow will start from this module.",
         "Classify question": "Classify question",
@@ -858,6 +891,8 @@
         "Http request": "Http request",
         "Http request intro": " Can issue an HTTP request to implement more complex operations (Internet search, database query, etc.)",
         "My plugin module": "Personal plugins",
+        "Query extension": "Query extension",
+        "Query extension intro": "If the problem completion function is enabled, the accuracy of knowledge base search can be improved in continuous conversations. After this function is enabled, when searching the knowledge base, AI will be used to complete the missing information of the problem according to the conversation records.",
         "Response module": "Text output",
         "Running app": "Running app",
         "Running app intro": "You can select a different app to run",
@@ -867,8 +902,6 @@
         "Tool module": "Tools",
         "UnKnow Module": "UnKnow Module",
         "User guide": "User guide",
-        "cfr": "Coreference resolution",
-        "cfr intro": "Refine the current issue based on history, making it more conducive to knowledge base search, while improving continuous conversation capabilities.",
         "textEditor": "Text Editor",
         "textEditor intro": "Output of fixed or incoming text after edit"
       },
@@ -1342,6 +1375,9 @@
       "Data Length": "Data length",
       "Dataset store": "",
       "Duration": "Duration(s)",
+      "Extension Input Token Length": "Extension input tokens",
+      "Extension Output Token Length": "Extension output tokens",
+      "Extension result": "Extension result",
       "Input Token Length": "Input tokens",
       "Module name": "Module name",
       "Next Step Guide": "",

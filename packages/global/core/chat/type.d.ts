@@ -109,6 +109,8 @@ export type moduleDispatchResType = {
   limit?: number;
   searchMode?: `${DatasetSearchModeEnum}`;
   searchUsingReRank?: boolean;
+  extensionModel?: string;
+  extensionResult?: string;
 
   // cq
   cqList?: ClassifyQuestionAgentItemType[];
@@ -119,7 +121,9 @@ export type moduleDispatchResType = {
   extractResult?: Record<string, any>;
 
   // http
+  params?: Record<string, any>;
   body?: Record<string, any>;
+  headers?: Record<string, any>;
   httpResult?: Record<string, any>;
 
   // plugin output
