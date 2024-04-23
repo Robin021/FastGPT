@@ -18,12 +18,14 @@ export type BillSchemaType = {
     month?: number;
     datasetSize?: number;
     extraPoints?: number;
+    invoice: boolean;
   };
+  username: string;
 };
 
-export type ChatModuleBillType = {
+export type ChatNodeUsageType = {
+  tokens?: number;
   totalPoints: number;
   moduleName: string;
   model?: string;
-  charsLength?: number;
 };

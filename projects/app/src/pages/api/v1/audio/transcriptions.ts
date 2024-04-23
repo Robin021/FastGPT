@@ -1,12 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { jsonRes } from '@fastgpt/service/common/response';
-import { authCert } from '@fastgpt/service/support/permission/auth/common';
 import { withNextCors } from '@fastgpt/service/common/middle/cors';
 import { getUploadModel } from '@fastgpt/service/common/file/multer';
 import { removeFilesByPaths } from '@fastgpt/service/common/file/utils';
 import fs from 'fs';
 import { getAIApi } from '@fastgpt/service/core/ai/config';
 import { pushWhisperUsage } from '@/service/support/wallet/usage/push';
+import { authChatCert } from '@/service/support/permission/auth/chat';
+import { MongoApp } from '@fastgpt/service/core/app/schema';
+import { getGuideModule, splitGuideModule } from '@fastgpt/global/core/module/utils';
+import { OutLinkChatAuthProps } from '@fastgpt/global/support/permission/chat';
 
 const upload = getUploadModel({
   maxSize: 2
@@ -18,12 +21,20 @@ export default withNextCors(async function handler(req: NextApiRequest, res: Nex
   try {
     const {
       file,
-      data: { duration }
-    } = await upload.doUpload<{ duration: number; shareId?: string }>(req, res);
+      data: { appId, duration, shareId, outLinkUid, teamId: spaceTeamId, teamToken }
+    } = await upload.doUpload<
+      OutLinkChatAuthProps & {
+        appId: string;
+        duration: number;
+      }
+    >(req, res);
+
+    req.body.shareId = shareId;
+    req.body.outLinkUid = outLinkUid;
+    req.body.teamId = spaceTeamId;
+    req.body.teamToken = teamToken;
 
     filePaths = [file.path];
-
-    const { teamId, tmbId } = await authCert({ req, authToken: true });
 
     if (!global.whisperModel) {
       throw new Error('whisper model not found');
@@ -31,6 +42,18 @@ export default withNextCors(async function handler(req: NextApiRequest, res: Nex
 
     if (!file) {
       throw new Error('file not found');
+    }
+
+    // auth role
+    const { teamId, tmbId } = await authChatCert({ req, authToken: true });
+    // auth app
+    const app = await MongoApp.findById(appId, 'modules').lean();
+    if (!app) {
+      throw new Error('app not found');
+    }
+    const { whisperConfig } = splitGuideModule(getGuideModule(app?.modules));
+    if (!whisperConfig?.open) {
+      throw new Error('Whisper is not open in the app');
     }
 
     const ai = getAIApi();

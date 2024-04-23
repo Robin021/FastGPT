@@ -5,7 +5,7 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
-import { Box } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 import styles from './index.module.scss';
 import { EditorState, LexicalEditor } from 'lexical';
 import { getNanoid } from '@fastgpt/global/common/string/tools';
@@ -36,7 +36,7 @@ export default function Editor({
   hasVariablePlugin?: boolean;
   hasDropDownPlugin?: boolean;
   variables: EditorVariablePickerType[];
-  onChange?: (editorState: EditorState) => void;
+  onChange?: (editorState: EditorState, editor: LexicalEditor) => void;
   onBlur?: (editor: LexicalEditor) => void;
   value?: string;
   currentValue?: string;
@@ -64,18 +64,29 @@ export default function Editor({
 
   useEffect(() => {
     setKey(getNanoid(6));
+    setFocus(false);
   }, [updateTrigger]);
 
   const dropdownVariables = useMemo(
     () =>
       variables.filter((item) => {
-        return item.key.includes(currentValue || '') && item.key !== currentValue;
+        const key = item.key.toLowerCase();
+        const current = currentValue?.toLowerCase();
+        return key.includes(current || '') && item.key !== currentValue;
       }),
-    [currentValue]
+    [currentValue, variables]
   );
 
   return (
-    <Box position={'relative'} width={'full'} h={`${h}px`} cursor={'text'}>
+    <Flex
+      position={'relative'}
+      width={'full'}
+      minH={`${h}px`}
+      h={'full'}
+      flexDirection={'column'}
+      cursor={'text'}
+      overflowY={'visible'}
+    >
       <LexicalComposer initialConfig={initialConfig} key={key}>
         <PlainTextPlugin
           contentEditable={<ContentEditable className={styles.contentEditable} />}
@@ -108,20 +119,20 @@ export default function Editor({
         <HistoryPlugin />
         <FocusPlugin focus={focus} setFocus={setFocus} />
         <OnChangePlugin
-          onChange={(e) => {
+          onChange={(editorState: EditorState, editor: LexicalEditor) => {
             startSts(() => {
-              onChange?.(e);
+              onChange?.(editorState, editor);
             });
           }}
         />
         {hasVariablePlugin ? <VariablePickerPlugin variables={variables} /> : ''}
-        {hasVariablePlugin ? <VariablePlugin variables={variables} /> : ''}
+        <VariablePlugin variables={variables} />
         <OnBlurPlugin onBlur={onBlur} />
         <SingleLinePlugin />
       </LexicalComposer>
       {focus && hasDropDownPlugin && (
         <DropDownMenu variables={dropdownVariables} setDropdownValue={setDropdownValue} />
       )}
-    </Box>
+    </Flex>
   );
 }

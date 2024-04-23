@@ -1,5 +1,6 @@
 import type { UserModelSchema } from '../type';
 import type { TeamMemberRoleEnum, TeamMemberStatusEnum } from './constant';
+import { LafAccountType } from './type';
 
 export type TeamSchema = {
   _id: string;
@@ -8,22 +9,20 @@ export type TeamSchema = {
   avatar: string;
   createTime: Date;
   balance: number;
-  maxSize: number;
-  tagsUrl: string;
+  teamDomain: string;
   limit: {
     lastExportDatasetTime: Date;
     lastWebsiteSyncTime: Date;
   };
+  lafAccount: LafAccountType;
 };
 export type tagsType = {
-  label: string,
-  key: string
-}
-export type TeamTagsSchema = {
-  _id: string;
   label: string;
-  teamId: string;
   key: string;
+};
+export type TeamTagSchema = TeamTagItemType & {
+  _id: string;
+  teamId: string;
   createTime: Date;
 };
 
@@ -56,11 +55,12 @@ export type TeamItemType = {
   avatar: string;
   balance: number;
   tmbId: string;
+  teamDomain: string;
   defaultTeam: boolean;
   role: `${TeamMemberRoleEnum}`;
   status: `${TeamMemberStatusEnum}`;
   canWrite: boolean;
-  maxSize: number;
+  lafAccount?: LafAccountType;
 };
 
 export type TeamMemberItemType = {
@@ -71,4 +71,15 @@ export type TeamMemberItemType = {
   avatar: string;
   role: `${TeamMemberRoleEnum}`;
   status: `${TeamMemberStatusEnum}`;
+};
+
+export type TeamTagItemType = {
+  label: string;
+  key: string;
+};
+
+export type LafAccountType = {
+  token: string;
+  appid: string;
+  pat: string;
 };

@@ -9,17 +9,19 @@ import { updateApiKeyUsage } from '@fastgpt/service/support/openapi/tools';
 import { getUsageSourceByAuthType } from '@fastgpt/global/support/wallet/usage/tools';
 import { getVectorModel } from '@fastgpt/service/core/ai/model';
 import { checkTeamAIPoints } from '@fastgpt/service/support/permission/teamLimit';
+import { EmbeddingTypeEnm } from '@fastgpt/global/core/ai/constants';
 
 type Props = {
   input: string | string[];
   model: string;
   dimensions?: number;
   billId?: string;
+  type: `${EmbeddingTypeEnm}`;
 };
 
 export default withNextCors(async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
   try {
-    let { input, model, billId } = req.body as Props;
+    let { input, model, billId, type } = req.body as Props;
     await connectToDatabase();
 
     if (!Array.isArray(input) && typeof input !== 'string') {
@@ -36,9 +38,10 @@ export default withNextCors(async function handler(req: NextApiRequest, res: Nex
 
     await checkTeamAIPoints(teamId);
 
-    const { charsLength, vectors } = await getVectorsByText({
+    const { tokens, vectors } = await getVectorsByText({
       input: query,
-      model: getVectorModel(model)
+      model: getVectorModel(model),
+      type
     });
 
     res.json({
@@ -50,15 +53,15 @@ export default withNextCors(async function handler(req: NextApiRequest, res: Nex
       })),
       model,
       usage: {
-        prompt_tokens: charsLength,
-        total_tokens: charsLength
+        prompt_tokens: tokens,
+        total_tokens: tokens
       }
     });
 
     const { totalPoints } = pushGenerateVectorUsage({
       teamId,
       tmbId,
-      charsLength,
+      tokens,
       model,
       billId,
       source: getUsageSourceByAuthType({ authType })

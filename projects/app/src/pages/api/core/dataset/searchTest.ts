@@ -5,7 +5,7 @@ import type { SearchTestProps, SearchTestResponse } from '@/global/core/dataset/
 import { connectToDatabase } from '@/service/mongo';
 import { authDataset } from '@fastgpt/service/support/permission/auth/dataset';
 import { pushGenerateVectorUsage } from '@/service/support/wallet/usage/push';
-import { searchDatasetData } from '@/service/core/dataset/data/controller';
+import { searchDatasetData } from '@fastgpt/service/core/dataset/search/controller';
 import { updateApiKeyUsage } from '@fastgpt/service/support/openapi/tools';
 import { UsageSourceEnum } from '@fastgpt/global/support/wallet/usage/constants';
 import { getLLMModel } from '@fastgpt/service/core/ai/model';
@@ -58,7 +58,7 @@ export default withNextCors(async function handler(req: NextApiRequest, res: Nex
       extensionBg: datasetSearchExtensionBg
     });
 
-    const { searchRes, charsLength, ...result } = await searchDatasetData({
+    const { searchRes, tokens, ...result } = await searchDatasetData({
       teamId,
       reRankQuery: rewriteQuery,
       queries: concatQueries,
@@ -74,14 +74,14 @@ export default withNextCors(async function handler(req: NextApiRequest, res: Nex
     const { totalPoints } = pushGenerateVectorUsage({
       teamId,
       tmbId,
-      charsLength,
+      tokens,
       model: dataset.vectorModel,
       source: apikey ? UsageSourceEnum.api : UsageSourceEnum.fastgpt,
 
       ...(aiExtensionResult &&
         extensionModel && {
           extensionModel: extensionModel.name,
-          extensionCharsLength: aiExtensionResult.charsLength
+          extensionTokens: aiExtensionResult.tokens
         })
     });
     if (apikey) {

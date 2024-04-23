@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Box, Flex, Button, IconButton } from '@chakra-ui/react';
 import { DragHandleIcon } from '@chakra-ui/icons';
-import { useRequest } from '@/web/common/hooks/useRequest';
-import { useConfirm } from '@/web/common/hooks/useConfirm';
+import { useRequest } from '@fastgpt/web/hooks/useRequest';
+import { useConfirm } from '@fastgpt/web/hooks/useConfirm';
 import { useRouter } from 'next/router';
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import { AppSchema } from '@fastgpt/global/core/app/type.d';
@@ -13,7 +13,7 @@ import PermissionIconText from '@/components/support/permission/IconText';
 import dynamic from 'next/dynamic';
 import Avatar from '@/components/Avatar';
 import MyIcon from '@fastgpt/web/components/common/Icon';
-import TagsEditModal from './tagsEditModal';
+import TagsEditModal from './TagsEditModal';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 const InfoModal = dynamic(() => import('../InfoModal'));
 
@@ -27,7 +27,8 @@ const AppCard = ({ appId }: { appId: string }) => {
   const [TeamTagsSet, setTeamTagsSet] = useState<AppSchema>();
 
   const { openConfirm: openConfirmDel, ConfirmModal: ConfirmDelModal } = useConfirm({
-    content: t('app.Confirm Del App Tip')
+    content: t('app.Confirm Del App Tip'),
+    type: 'delete'
   });
 
   /* 点击删除 */
@@ -156,9 +157,7 @@ const AppCard = ({ appId }: { appId: string }) => {
       {settingAppInfo && (
         <InfoModal defaultApp={settingAppInfo} onClose={() => setSettingAppInfo(undefined)} />
       )}
-      {TeamTagsSet && (
-        <TagsEditModal appDetail={appDetail} onClose={() => setTeamTagsSet(undefined)} />
-      )}
+      {TeamTagsSet && <TagsEditModal onClose={() => setTeamTagsSet(undefined)} />}
     </>
   );
 };

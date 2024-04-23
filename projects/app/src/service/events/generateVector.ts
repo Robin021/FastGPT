@@ -2,8 +2,10 @@ import { insertData2Dataset } from '@/service/core/dataset/data/controller';
 import { MongoDatasetTraining } from '@fastgpt/service/core/dataset/training/schema';
 import { TrainingModeEnum } from '@fastgpt/global/core/dataset/constants';
 import { pushGenerateVectorUsage } from '@/service/support/wallet/usage/push';
-import { checkInvalidChunkAndLock, checkTeamAiPointsAndLock } from './utils';
-import { delay } from '@fastgpt/global/common/system/utils';
+import { checkTeamAiPointsAndLock } from './utils';
+import { checkInvalidChunkAndLock } from '@fastgpt/service/core/dataset/training/utils';
+import { addMinutes } from 'date-fns';
+import { addLog } from '@fastgpt/service/common/system/log';
 
 const reduceQueue = () => {
   global.vectorQueueLen = global.vectorQueueLen > 0 ? global.vectorQueueLen - 1 : 0;
@@ -13,7 +15,8 @@ const reduceQueue = () => {
 
 /* 索引生成队列。每导入一次，就是一个单独的线程 */
 export async function generateVector(): Promise<any> {
-  if (global.vectorQueueLen >= global.systemEnv.vectorMaxProcess) return;
+  const max = global.systemEnv?.vectorMaxProcess || 10;
+  if (global.vectorQueueLen >= max) return;
   global.vectorQueueLen++;
   const start = Date.now();
 
@@ -27,31 +30,26 @@ export async function generateVector(): Promise<any> {
     try {
       const data = await MongoDatasetTraining.findOneAndUpdate(
         {
-          lockTime: { $lte: new Date(Date.now() - 1 * 60 * 1000) },
-          mode: TrainingModeEnum.chunk
+          mode: TrainingModeEnum.chunk,
+          lockTime: { $lte: addMinutes(new Date(), -1) }
         },
         {
           lockTime: new Date()
         }
-      )
-        .sort({
-          weight: -1
-        })
-        .select({
-          _id: 1,
-          userId: 1,
-          teamId: 1,
-          tmbId: 1,
-          datasetId: 1,
-          collectionId: 1,
-          q: 1,
-          a: 1,
-          chunkIndex: 1,
-          indexes: 1,
-          model: 1,
-          billId: 1
-        })
-        .lean();
+      ).select({
+        _id: 1,
+        userId: 1,
+        teamId: 1,
+        tmbId: 1,
+        datasetId: 1,
+        collectionId: 1,
+        q: 1,
+        a: 1,
+        chunkIndex: 1,
+        indexes: 1,
+        model: 1,
+        billId: 1
+      });
 
       // task preemption
       if (!data) {
@@ -68,7 +66,7 @@ export async function generateVector(): Promise<any> {
         }
       };
     } catch (error) {
-      console.log(`Get Training Data error`, error);
+      addLog.error(`Get Training Data error`, error);
       return {
         error: true
       };
@@ -77,11 +75,12 @@ export async function generateVector(): Promise<any> {
 
   if (done || !data) {
     if (reduceQueue()) {
-      console.log(`【index】Task done`);
+      addLog.info(`[Vector Queue] Done`);
     }
     return;
   }
   if (error) {
+    addLog.error(`[Vector Queue] Error`, { error });
     reduceQueue();
     return generateVector();
   }
@@ -92,18 +91,20 @@ export async function generateVector(): Promise<any> {
     return generateVector();
   }
 
+  addLog.info(`[Vector Queue] Start`);
+
   // create vector and insert
   try {
     // invalid data
     if (!data.q.trim()) {
-      await MongoDatasetTraining.findByIdAndDelete(data._id);
+      await data.deleteOne();
       reduceQueue();
       generateVector();
       return;
     }
 
     // insert to dataset
-    const { charsLength } = await insertData2Dataset({
+    const { tokens } = await insertData2Dataset({
       teamId: data.teamId,
       tmbId: data.tmbId,
       datasetId: data.datasetId,
@@ -119,17 +120,19 @@ export async function generateVector(): Promise<any> {
     pushGenerateVectorUsage({
       teamId: data.teamId,
       tmbId: data.tmbId,
-      charsLength,
+      tokens,
       model: data.model,
       billId: data.billId
     });
 
     // delete data from training
-    await MongoDatasetTraining.findByIdAndDelete(data._id);
+    await data.deleteOne();
     reduceQueue();
     generateVector();
 
-    console.log(`embedding finished, time: ${Date.now() - start}ms`);
+    addLog.info(`[Vector Queue] Finish`, {
+      time: Date.now() - start
+    });
   } catch (err: any) {
     reduceQueue();
 

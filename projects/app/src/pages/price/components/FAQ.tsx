@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Flex, Grid } from '@chakra-ui/react';
+import { Box, Flex, Grid } from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
 
 const FAQ = () => {
@@ -15,7 +15,7 @@ const FAQ = () => {
     },
     {
       title: '什么是AI积分？',
-      desc: '每次调用AI模型时，都会消耗一定的AI积分。具体的计算标准可参考上方的“AI 积分计算标准”。\n1 字符=1中英文字符和标点符号，会去掉换行和空格符号，计算字符时包含对话上下文与知识库引用。'
+      desc: '每次调用AI模型时，都会消耗一定的AI积分。具体的计算标准可参考上方的“AI 积分计算标准”。\nToken计算采用GPT3.5相同公式，1Token≈0.7中文字符≈0.9英文单词，连续出现的字符可能被认为是1个Tokens。'
     },
     {
       title: 'AI积分会过期么？',
@@ -23,7 +23,7 @@ const FAQ = () => {
     },
     {
       title: '知识库存储怎么计算？',
-      desc: '1条知识库存储等于1条知识库索引。一条知识库数据可以包含1条或多条知识库索引。'
+      desc: '1条知识库存储等于1条知识库索引。一条知识库数据可以包含1条或多条知识库索引。增强训练中，1条数据会生成5条索引。'
     },
     {
       title: '知识库索引超出会删除么？',
@@ -35,7 +35,7 @@ const FAQ = () => {
     },
     {
       title: '免费版数据会清除么？',
-      desc: '免费版用户15天无使用记录后，会自动清除所有知识库内容。'
+      desc: '免费版用户（免费版且未购买额外套餐）30天无使用记录后，系统会自动清除账号下所有知识库内容。'
     }
   ];
 

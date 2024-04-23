@@ -10,7 +10,6 @@ import { MongoTeam } from './teamSchema';
 
 async function getTeamMember(match: Record<string, any>): Promise<TeamItemType> {
   const tmb = (await MongoTeamMember.findOne(match).populate('teamId')) as TeamMemberWithTeamSchema;
-
   if (!tmb) {
     return Promise.reject('member not exist');
   }
@@ -23,11 +22,12 @@ async function getTeamMember(match: Record<string, any>): Promise<TeamItemType> 
     avatar: tmb.teamId.avatar,
     balance: tmb.teamId.balance,
     tmbId: String(tmb._id),
+    teamDomain: tmb.teamId?.teamDomain,
     role: tmb.role,
     status: tmb.status,
     defaultTeam: tmb.defaultTeam,
     canWrite: tmb.role !== TeamMemberRoleEnum.visitor,
-    maxSize: tmb.teamId.maxSize
+    lafAccount: tmb.teamId.lafAccount
   };
 }
 
@@ -55,14 +55,12 @@ export async function createDefaultTeam({
   teamName = 'My Team',
   avatar = '/icon/logo.svg',
   balance,
-  maxSize = 5,
   session
 }: {
   userId: string;
   teamName?: string;
   avatar?: string;
   balance?: number;
-  maxSize?: number;
   session: ClientSession;
 }) {
   // auth default team
@@ -72,8 +70,6 @@ export async function createDefaultTeam({
   });
 
   if (!tmb) {
-    console.log('create default team', userId);
-
     // create
     const [{ _id: insertedId }] = await MongoTeam.create(
       [
@@ -82,7 +78,6 @@ export async function createDefaultTeam({
           name: teamName,
           avatar,
           balance,
-          maxSize,
           createTime: new Date()
         }
       ],
@@ -102,12 +97,12 @@ export async function createDefaultTeam({
       ],
       { session }
     );
+    console.log('create default team', userId);
   } else {
     console.log('default team exist', userId);
     await MongoTeam.findByIdAndUpdate(tmb.teamId, {
       $set: {
-        ...(balance !== undefined && { balance }),
-        maxSize
+        ...(balance !== undefined && { balance })
       }
     });
   }
