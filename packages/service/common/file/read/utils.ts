@@ -1,16 +1,11 @@
-import { markdownProcess } from '@fastgpt/global/common/string/markdown';
+import { markdownProcess, simpleMarkdownText } from '@fastgpt/global/common/string/markdown';
 import { uploadMongoImg } from '../image/controller';
 import { MongoImageTypeEnum } from '@fastgpt/global/common/file/image/constants';
 import { addHours } from 'date-fns';
-import { ReadFileByBufferParams } from './type';
-import { readFileRawText } from '../read/rawText';
-import { readMarkdown } from '../read/markdown';
-import { readHtmlRawText } from '../read/html';
-import { readPdfFile } from '../read/pdf';
-import { readWordFile } from '../read/word';
-import { readCsvRawText } from '../read/csv';
-import { readPptxRawText } from '../read/pptx';
-import { readXlsxRawText } from '../read/xlsx';
+
+import { WorkerNameEnum, runWorker } from '../../../worker/utils';
+import { ReadFileResponse } from '../../../worker/file/type';
+import { rawTextBackupPrefix } from '@fastgpt/global/core/dataset/read';
 
 export const initMarkdownText = ({
   teamId,
@@ -35,47 +30,48 @@ export const initMarkdownText = ({
 
 export const readFileRawContent = async ({
   extension,
-  csvFormat,
-  params
+  isQAImport,
+  teamId,
+  buffer,
+  encoding,
+  metadata
 }: {
-  csvFormat?: boolean;
+  isQAImport?: boolean;
   extension: string;
-  params: ReadFileByBufferParams;
+  teamId: string;
+  buffer: Buffer;
+  encoding: string;
+  metadata?: Record<string, any>;
 }) => {
-  switch (extension) {
-    case 'txt':
-      return readFileRawText(params);
-    case 'md':
-      return readMarkdown(params);
-    case 'html':
-      return readHtmlRawText(params);
-    case 'pdf':
-      return readPdfFile(params);
-    case 'docx':
-      return readWordFile(params);
-    case 'pptx':
-      return readPptxRawText(params);
-    case 'xlsx':
-      const xlsxResult = await readXlsxRawText(params);
-      if (csvFormat) {
-        return {
-          rawText: xlsxResult.formatText || ''
-        };
-      }
-      return {
-        rawText: xlsxResult.rawText
-      };
-    case 'csv':
-      const csvResult = await readCsvRawText(params);
-      if (csvFormat) {
-        return {
-          rawText: csvResult.formatText || ''
-        };
-      }
-      return {
-        rawText: csvResult.rawText
-      };
-    default:
-      return Promise.reject('Only support .txt, .md, .html, .pdf, .docx, pptx, .csv, .xlsx');
+  let { rawText, formatText } = await runWorker<ReadFileResponse>(WorkerNameEnum.readFile, {
+    extension,
+    encoding,
+    buffer
+  });
+
+  // markdown data format
+  if (['md', 'html', 'docx'].includes(extension)) {
+    rawText = await initMarkdownText({
+      teamId: teamId,
+      md: rawText,
+      metadata: metadata
+    });
   }
+
+  if (['csv', 'xlsx'].includes(extension)) {
+    // qa data
+    if (isQAImport) {
+      rawText = rawText || '';
+    } else {
+      rawText = formatText || '';
+    }
+  }
+
+  return { rawText };
+};
+
+export const htmlToMarkdown = async (html?: string | null) => {
+  const md = await runWorker<string>(WorkerNameEnum.htmlStr2Md, { html: html || '' });
+
+  return simpleMarkdownText(md);
 };
