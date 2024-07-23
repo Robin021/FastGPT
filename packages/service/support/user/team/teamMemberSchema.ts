@@ -1,5 +1,5 @@
-import { connectionMongo, type Model } from '../../../common/mongo';
-const { Schema, model, models } = connectionMongo;
+import { connectionMongo, getMongoModel } from '../../../common/mongo';
+const { Schema } = connectionMongo;
 import { TeamMemberSchema as TeamMemberType } from '@fastgpt/global/support/user/team/type.d';
 import { userCollectionName } from '../../user/schema';
 import {
@@ -49,5 +49,7 @@ try {
   console.log(error);
 }
 
-export const MongoTeamMember: Model<TeamMemberType> =
-  models[TeamMemberCollectionName] || model(TeamMemberCollectionName, TeamMemberSchema);
+export const MongoTeamMember = getMongoModel<TeamMemberType>(
+  TeamMemberCollectionName,
+  TeamMemberSchema
+);

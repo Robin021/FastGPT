@@ -1,19 +1,19 @@
 import { GET, POST, PUT, DELETE } from '@/web/common/api/request';
-import type { ParentTreePathItemType } from '@fastgpt/global/common/parentFolder/type.d';
+import type {
+  ParentIdType,
+  ParentTreePathItemType
+} from '@fastgpt/global/common/parentFolder/type.d';
 import type {
   DatasetItemType,
   DatasetListItemType,
   DatasetSimpleItemType
 } from '@fastgpt/global/core/dataset/type.d';
-import type {
-  GetDatasetCollectionsProps,
-  GetDatasetDataListProps,
-  UpdateDatasetCollectionParams
-} from '@/global/core/api/datasetReq.d';
+import type { GetDatasetCollectionsProps } from '@/global/core/api/datasetReq.d';
 import type {
   CreateDatasetCollectionParams,
   CsvTableCreateDatasetCollectionParams,
   DatasetUpdateBody,
+  ExternalFileCreateDatasetCollectionParams,
   FileIdCreateDatasetCollectionParams,
   LinkCreateDatasetCollectionParams,
   PostWebsiteSyncParams,
@@ -25,16 +25,9 @@ import type {
   SearchTestProps,
   SearchTestResponse
 } from '@/global/core/dataset/api.d';
-import type {
-  UpdateDatasetDataProps,
-  CreateDatasetParams,
-  InsertOneDatasetDataProps
-} from '@/global/core/dataset/api.d';
+import type { CreateDatasetParams, InsertOneDatasetDataProps } from '@/global/core/dataset/api.d';
 import type { DatasetCollectionItemType } from '@fastgpt/global/core/dataset/type';
-import {
-  DatasetCollectionSyncResultEnum,
-  DatasetTypeEnum
-} from '@fastgpt/global/core/dataset/constants';
+import { DatasetCollectionSyncResultEnum } from '@fastgpt/global/core/dataset/constants';
 import type { DatasetDataItemType } from '@fastgpt/global/core/dataset/type';
 import type { DatasetCollectionsListItemType } from '@/global/core/dataset/type.d';
 import { PagingData } from '@/types';
@@ -44,17 +37,22 @@ import type {
   PostPreviewFilesChunksProps,
   PreviewChunksResponse
 } from '@/pages/api/core/dataset/file/getPreviewChunks';
+import type { readCollectionSourceResponse } from '@/pages/api/core/dataset/collection/read';
+import type { GetDatasetListBody } from '@/pages/api/core/dataset/list';
+import type { UpdateDatasetCollectionParams } from '@/pages/api/core/dataset/collection/update';
+import type { GetDatasetDataListProps } from '@/pages/api/core/dataset/data/list';
+import type { UpdateDatasetDataProps } from '@fastgpt/global/core/dataset/controller';
 
 /* ======================== dataset ======================= */
-export const getDatasets = (data: { parentId?: string; type?: DatasetTypeEnum }) =>
-  GET<DatasetListItemType[]>(`/core/dataset/list`, data);
+export const getDatasets = (data: GetDatasetListBody) =>
+  POST<DatasetListItemType[]>(`/core/dataset/list`, data);
 
 /**
  * get type=dataset list
  */
 export const getAllDataset = () => GET<DatasetSimpleItemType[]>(`/core/dataset/allDataset`);
 
-export const getDatasetPaths = (parentId?: string) =>
+export const getDatasetPaths = (parentId: ParentIdType) =>
   GET<ParentTreePathItemType[]>('/core/dataset/paths', { parentId });
 
 export const getDatasetById = (id: string) => GET<DatasetItemType>(`/core/dataset/detail?id=${id}`);
@@ -85,13 +83,21 @@ export const getDatasetCollectionById = (id: string) =>
 export const postDatasetCollection = (data: CreateDatasetCollectionParams) =>
   POST<string>(`/core/dataset/collection/create`, data);
 export const postCreateDatasetFileCollection = (data: FileIdCreateDatasetCollectionParams) =>
-  POST<{ collectionId: string }>(`/core/dataset/collection/create/file`, data, { timeout: 120000 });
+  POST<{ collectionId: string }>(`/core/dataset/collection/create/fileId`, data, {
+    timeout: 120000
+  });
 export const postCreateDatasetLinkCollection = (data: LinkCreateDatasetCollectionParams) =>
   POST<{ collectionId: string }>(`/core/dataset/collection/create/link`, data);
 export const postCreateDatasetTextCollection = (data: TextCreateDatasetCollectionParams) =>
   POST<{ collectionId: string }>(`/core/dataset/collection/create/text`, data);
 export const postCreateDatasetCsvTableCollection = (data: CsvTableCreateDatasetCollectionParams) =>
   POST<{ collectionId: string }>(`/core/dataset/collection/create/csvTable`, data, {
+    timeout: 120000
+  });
+export const postCreateDatasetExternalFileCollection = (
+  data: ExternalFileCreateDatasetCollectionParams
+) =>
+  POST<{ collectionId: string }>(`/proApi/core/dataset/collection/create/externalFileUrl`, data, {
     timeout: 120000
   });
 
@@ -144,6 +150,6 @@ export const getDatasetTrainingQueue = (datasetId: string) =>
 export const getPreviewChunks = (data: PostPreviewFilesChunksProps) =>
   POST<PreviewChunksResponse>('/core/dataset/file/getPreviewChunks', data);
 
-/* ================== file ======================== */
-export const getFileViewUrl = (fileId: string) =>
-  GET<string>('/core/dataset/file/getPreviewUrl', { fileId });
+/* ================== read source ======================== */
+export const getCollectionSource = (collectionId: string) =>
+  GET<readCollectionSourceResponse>('/core/dataset/collection/read', { collectionId });

@@ -67,7 +67,7 @@ const CollectionPageContextProvider = ({ children }: { children: ReactNode }) =>
 
   // website config
   const { openConfirm: openWebSyncConfirm, ConfirmModal: ConfirmWebSyncModal } = useConfirm({
-    content: t('core.dataset.collection.Start Sync Tip')
+    content: t('common:core.dataset.collection.Start Sync Tip')
   });
   const {
     isOpen: isOpenWebsiteModal,
@@ -78,21 +78,20 @@ const CollectionPageContextProvider = ({ children }: { children: ReactNode }) =>
     mutationFn: async (websiteConfig: DatasetSchemaType['websiteConfig']) => {
       onCloseWebsiteModal();
       await checkTeamWebSyncLimit();
-      const billId = await postCreateTrainingUsage({
-        name: t('core.dataset.training.Website Sync'),
-        datasetId: datasetId
-      });
-      await postWebsiteSync({ datasetId: datasetId, billId });
-
       await updateDataset({
         id: datasetId,
         websiteConfig,
         status: DatasetStatusEnum.syncing
       });
+      const billId = await postCreateTrainingUsage({
+        name: t('common:core.dataset.training.Website Sync'),
+        datasetId: datasetId
+      });
+      await postWebsiteSync({ datasetId: datasetId, billId });
 
       return;
     },
-    errorToast: t('common.Update Failed')
+    errorToast: t('common:common.Update Failed')
   });
 
   // collection list

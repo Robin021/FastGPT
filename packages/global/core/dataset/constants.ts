@@ -8,22 +8,22 @@ export enum DatasetTypeEnum {
 export const DatasetTypeMap = {
   [DatasetTypeEnum.folder]: {
     icon: 'common/folderFill',
-    label: 'Folder Dataset',
+    label: 'folder_dataset',
     collectionLabel: 'common.Folder'
   },
   [DatasetTypeEnum.dataset]: {
     icon: 'core/dataset/commonDataset',
-    label: 'Common Dataset',
+    label: 'common_dataset',
     collectionLabel: 'common.File'
   },
   [DatasetTypeEnum.websiteDataset]: {
     icon: 'core/dataset/websiteDataset',
-    label: 'Website Dataset',
+    label: 'website_dataset',
     collectionLabel: 'common.Website'
   },
   [DatasetTypeEnum.externalFile]: {
-    icon: 'core/dataset/commonDataset',
-    label: 'External File',
+    icon: 'core/dataset/externalDataset',
+    label: 'external_file',
     collectionLabel: 'common.File'
   }
 };
@@ -44,9 +44,11 @@ export const DatasetStatusMap = {
 /* ------------ collection -------------- */
 export enum DatasetCollectionTypeEnum {
   folder = 'folder',
+  virtual = 'virtual',
+
   file = 'file',
   link = 'link', // one link
-  virtual = 'virtual'
+  externalFile = 'externalFile'
 }
 export const DatasetCollectionTypeMap = {
   [DatasetCollectionTypeEnum.folder]: {
@@ -54,6 +56,9 @@ export const DatasetCollectionTypeMap = {
   },
   [DatasetCollectionTypeEnum.file]: {
     name: 'core.dataset.file'
+  },
+  [DatasetCollectionTypeEnum.externalFile]: {
+    name: 'core.dataset.externalFile'
   },
   [DatasetCollectionTypeEnum.link]: {
     name: 'core.dataset.link'

@@ -1,13 +1,14 @@
 export enum FlowNodeTemplateTypeEnum {
   systemInput = 'systemInput',
+  ai = 'ai',
+  function = 'function',
   tools = 'tools',
-  textAnswer = 'textAnswer',
-  functionCall = 'functionCall',
-  externalCall = 'externalCall',
 
-  personalPlugin = 'personalPlugin',
+  search = 'search',
+  multimodal = 'multimodal',
 
-  other = 'other'
+  other = 'other',
+  teamApp = 'teamApp'
 }
 
 export enum WorkflowIOValueTypeEnum {
@@ -45,6 +46,7 @@ export enum NodeInputKeyEnum {
   whisper = 'whisper',
   variables = 'variables',
   scheduleTrigger = 'scheduleTrigger',
+  chatInputGuide = 'chatInputGuide',
 
   // entry
   userChatInput = 'userChatInput',
@@ -83,6 +85,9 @@ export enum NodeInputKeyEnum {
   datasetSearchExtensionModel = 'datasetSearchExtensionModel',
   datasetSearchExtensionBg = 'datasetSearchExtensionBg',
 
+  // concat dataset
+  datasetQuoteList = 'system_datasetQuoteList',
+
   // context extract
   contextExtractInput = 'content',
   extractKeys = 'extractKeys',
@@ -107,7 +112,11 @@ export enum NodeInputKeyEnum {
   ifElseList = 'ifElseList',
 
   // variable update
-  updateList = 'updateList'
+  updateList = 'updateList',
+
+  // code
+  code = 'code',
+  codeType = 'codeType' // js|py
 }
 
 export enum NodeOutputKeyEnum {
@@ -117,8 +126,10 @@ export enum NodeOutputKeyEnum {
   answerText = 'answerText', // module answer. the value will be show and save to history
   success = 'success',
   failed = 'failed',
+  error = 'error',
   text = 'system_text',
   addOutputParam = 'system_addOutputParam',
+  rawResponse = 'system_rawResponse',
 
   // dataset
   datasetQuoteQA = 'quoteQA',
@@ -173,8 +184,6 @@ export const variableMap = {
   }
 };
 
-export const DYNAMIC_INPUT_REFERENCE_KEY = 'DYNAMIC_INPUT_REFERENCE_KEY';
-
 /* run time */
 export enum RuntimeEdgeStatusEnum {
   'waiting' = 'waiting',
@@ -183,3 +192,4 @@ export enum RuntimeEdgeStatusEnum {
 }
 
 export const VARIABLE_NODE_ID = 'VARIABLE_NODE_ID';
+export const DYNAMIC_INPUT_REFERENCE_KEY = 'DYNAMIC_INPUT_REFERENCE_KEY';

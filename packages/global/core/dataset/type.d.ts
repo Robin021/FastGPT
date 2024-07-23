@@ -1,3 +1,4 @@
+import { PermissionValueType } from 'support/permission/type';
 import type { LLMModelItemType, VectorModelItemType } from '../../core/ai/model.d';
 import { PermissionTypeEnum } from '../../support/permission/constant';
 import { PushDatasetDataChunkProps } from './api';
@@ -8,6 +9,8 @@ import {
   SearchScoreTypeEnum,
   TrainingModeEnum
 } from './constants';
+import { DatasetPermission } from '../../support/permission/dataset/controller';
+import { Permission } from '../../support/permission/controller';
 
 /* schema */
 export type DatasetSchemaType = {
@@ -24,7 +27,7 @@ export type DatasetSchemaType = {
   intro: string;
   type: DatasetTypeEnum;
   status: `${DatasetStatusEnum}`;
-  permission: `${PermissionTypeEnum}`;
+  // permission: DatasetPermission;
 
   // metadata
   websiteConfig?: {
@@ -32,6 +35,7 @@ export type DatasetSchemaType = {
     selector: string;
   };
   externalReadUrl?: string;
+  defaultPermission: PermissionValueType;
 };
 
 export type DatasetCollectionSchemaType = {
@@ -41,22 +45,25 @@ export type DatasetCollectionSchemaType = {
   datasetId: string;
   parentId?: string;
   name: string;
-  type: `${DatasetCollectionTypeEnum}`;
+  type: DatasetCollectionTypeEnum;
   createTime: Date;
   updateTime: Date;
+  forbid?: boolean;
 
   trainingType: TrainingModeEnum;
   chunkSize: number;
   chunkSplitter?: string;
   qaPrompt?: string;
 
-  sourceId?: string; // relate CollectionSourcePrefixEnum
+  tags?: string[];
+
   fileId?: string; // local file id
   rawLink?: string; // link url
+  externalFileId?: string; //external file id
 
   rawTextLength?: number;
   hashRawText?: string;
-  externalSourceUrl?: string; // external import url
+  externalFileUrl?: string; // external import url
   metadata?: {
     webPageSelector?: string;
     relatedImgId?: string; // The id of the associated image collections
@@ -83,6 +90,7 @@ export type DatasetDataSchemaType = {
   updateTime: Date;
   q: string; // large chunks or question
   a: string; // answer or custom content
+  forbid?: boolean;
   fullTextToken: string;
   indexes: DatasetDataIndexItemType[];
   rebuilding?: boolean;
@@ -130,24 +138,23 @@ export type DatasetListItemType = {
   name: string;
   intro: string;
   type: DatasetTypeEnum;
-  isOwner: boolean;
-  canWrite: boolean;
-  permission: `${PermissionTypeEnum}`;
+  permission: DatasetPermission;
   vectorModel: VectorModelItemType;
+  defaultPermission: PermissionValueType;
 };
+
 export type DatasetItemType = Omit<DatasetSchemaType, 'vectorModel' | 'agentModel'> & {
   vectorModel: VectorModelItemType;
   agentModel: LLMModelItemType;
-  isOwner: boolean;
-  canWrite: boolean;
+  permission: DatasetPermission;
 };
 
 /* ================= collection ===================== */
 export type DatasetCollectionItemType = CollectionWithDatasetType & {
-  canWrite: boolean;
   sourceName: string;
   sourceId?: string;
   file?: DatasetFileSchema;
+  permission: DatasetPermission;
 };
 
 /* ================= data ===================== */
@@ -175,10 +182,9 @@ export type DatasetFileSchema = {
   filename: string;
   contentType: string;
   metadata: {
-    contentType: string;
-    datasetId: string;
     teamId: string;
     tmbId: string;
+    encoding?: string;
   };
 };
 

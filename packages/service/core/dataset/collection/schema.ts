@@ -1,4 +1,4 @@
-import { connectionMongo, type Model } from '../../../common/mongo';
+import { connectionMongo, getMongoModel, type Model } from '../../../common/mongo';
 const { Schema, model, models } = connectionMongo;
 import { DatasetCollectionSchemaType } from '@fastgpt/global/core/dataset/type.d';
 import { TrainingTypeMap, DatasetCollectionTypeMap } from '@fastgpt/global/core/dataset/constants';
@@ -48,12 +48,15 @@ const DatasetCollectionSchema = new Schema({
     type: Date,
     default: () => new Date()
   },
+  forbid: {
+    type: Boolean,
+    default: false
+  },
 
   // chunk filed
   trainingType: {
     type: String,
-    enum: Object.keys(TrainingTypeMap),
-    required: true
+    enum: Object.keys(TrainingTypeMap)
   },
   chunkSize: {
     type: Number,
@@ -66,7 +69,11 @@ const DatasetCollectionSchema = new Schema({
     type: String
   },
 
-  sourceId: String,
+  tags: {
+    type: [String],
+    default: []
+  },
+
   // local file collection
   fileId: {
     type: Schema.Types.ObjectId,
@@ -74,13 +81,13 @@ const DatasetCollectionSchema = new Schema({
   },
   // web link collection
   rawLink: String,
-
   // external collection
+  externalFileId: String,
 
   // metadata
   rawTextLength: Number,
   hashRawText: String,
-  externalSourceUrl: String, // external import url
+  externalFileUrl: String, // external import url
   metadata: {
     type: Object,
     default: {}
@@ -89,21 +96,23 @@ const DatasetCollectionSchema = new Schema({
 
 try {
   // auth file
-  DatasetCollectionSchema.index({ teamId: 1, fileId: 1 }, { background: true });
+  DatasetCollectionSchema.index({ teamId: 1, fileId: 1 });
 
   // list collection; deep find collections
-  DatasetCollectionSchema.index(
-    {
-      teamId: 1,
-      datasetId: 1,
-      parentId: 1,
-      updateTime: -1
-    },
-    { background: true }
-  );
+  DatasetCollectionSchema.index({
+    teamId: 1,
+    datasetId: 1,
+    parentId: 1,
+    updateTime: -1
+  });
+
+  // get forbid
+  // DatasetCollectionSchema.index({ teamId: 1, datasetId: 1, forbid: 1 });
 } catch (error) {
   console.log(error);
 }
 
-export const MongoDatasetCollection: Model<DatasetCollectionSchemaType> =
-  models[DatasetColCollectionName] || model(DatasetColCollectionName, DatasetCollectionSchema);
+export const MongoDatasetCollection = getMongoModel<DatasetCollectionSchemaType>(
+  DatasetColCollectionName,
+  DatasetCollectionSchema
+);
